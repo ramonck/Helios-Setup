@@ -23,7 +23,7 @@
 # Script Logic Start
 # No @_rkey and with @_rpass criteria
 if [[ -z $_rkey &&  -n $_rpass ]]; then 
- sudo apt-get install -f sshpass
+ sudo apt-get -qy install sshpass
  _conn="sshpass -p ${_rpass} ssh ${_ruser}@${_rserver}"
 # No @_rkey and no @_rpass criteria
 elif [[ -z $_rkey && -z $_rpass ]]; then 
@@ -47,18 +47,19 @@ _oldhostn=$(${_conn} "cat /etc/hostname")
 
 #Ask for new hostname $newhost
 while [[ -z ${_newhostn} ]]; do
-echo "Enter new hostname: (Suggested:${_serverip}, Current:${_oldhostn})"
-read -p ${_serverip} _newhostn
+echo "Enter new hostname: (Default:${_serverip}, Old[Current]:${_oldhostn})"
+read _newhostn
+if [[ -z ${_newhostn} ]]; then
+_newhostn=${_serverip}
+fi
 done
 echo "chosen DNS ${_newhostn}"
-#_cmd1="sudo sed 's/^${_oldhostn}/${_newhostn}/d' /etc/hosts"
-_cmd2="touch tmphost && echo ${_newhostn} > tmphost && sudo cp tmphost /etc/hostname && rm tmphost"
-_cmd3="sudo service hostname restart"
+_cmd1="touch tmphost && echo ${_newhostn} > tmphost && sudo cp tmphost /etc/hostname && rm tmphost"
+_cmd2="sudo service hostname restart"
 
 echo ">> Renaming Hostname"
-#${_conn} "$_cmd1"
+${_conn} "$_cmd1"
 ${_conn} "$_cmd2"
-${_conn} "$_cmd3"
 
 # Update Apt Records
 echo ">> Updating Apt Records"
@@ -85,6 +86,6 @@ ${_conn} "/usr/share/zookeeper/bin/zkServer.sh start-foreground &"
 echo ">> Starting Helios-Master in foreground"
 ${_conn} "helios-master &"
 fi
-#exit 0
+exit 0
 # Script Logic End
 # -------------------------------------------------
