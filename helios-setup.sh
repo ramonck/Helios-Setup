@@ -14,7 +14,7 @@
  
 # Server Section
 # Change to the DNS/IP of your server @_rserver
- _rserver="54.210.11.239"
+ _rserver="your-ip"
 # Your Changes End Here
 # -------------------------------------------------
 
@@ -32,9 +32,11 @@ _conn="ssh ${_ruser}@${_rserver}"
 elif [[ -n $_rkey ]]; then 
 _conn="ssh -i ${_rkey} ${_ruser}@${_rserver}" 
 fi
-
-echo $_conn
-
+nc ${_rserver} 22 < /dev/null
+if [[ $? == 1 ]]; then
+echo "ERROR: Unable to connect to server, please verify and configure your server."
+else
+echo ">> Connection is available with this server"
 # Get public IP address
 echo ">> Getting public address"
 _serverip=$(${_conn} "curl ifconfig.me")
@@ -44,8 +46,10 @@ echo ">> Getting current hostname"
 _oldhostn=$(${_conn} "cat /etc/hostname")
 
 #Ask for new hostname $newhost
+while [[ -z ${_newhostn} ]]; do
 echo "Enter new hostname: (Suggested:${_serverip}, Current:${_oldhostn})"
 read -p ${_serverip} _newhostn
+done
 echo "chosen DNS ${_newhostn}"
 #_cmd1="sudo sed 's/^${_oldhostn}/${_newhostn}/d' /etc/hosts"
 _cmd2="touch tmphost && echo ${_newhostn} > tmphost && sudo cp tmphost /etc/hostname && rm tmphost"
@@ -80,7 +84,7 @@ ${_conn} "/usr/share/zookeeper/bin/zkServer.sh start-foreground &"
 # Start Helios Master
 echo ">> Starting Helios-Master in foreground"
 ${_conn} "helios-master &"
-
+fi
 #exit 0
 # Script Logic End
 # -------------------------------------------------
