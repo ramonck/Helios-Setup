@@ -83,8 +83,8 @@ ${_conn} "sudo dpkg -i helios*"
 echo ">> Starting ZooKeeper in foreground"
 ${_conn} "/usr/share/zookeeper/bin/zkServer.sh start-foreground &"
 # Start Helios Master
-echo ">> Starting Helios-Master in foreground"
-${_conn} "helios-master &"
+#echo ">> Starting Helios-Master in foreground"
+#${_conn} "helios-master &"
 fi
 exit 0
 # Script Logic End
